@@ -23,7 +23,8 @@ typedef enum
     AI_CAMERA_FACE_RE,        // 人脸识别
     AI_CAMERA_DEEP_LEARN,
     AI_CAMERA_CARD,
-    AI_CAMERA_WIFI_SERVER,    // 无线图传
+    AI_CAMERA_AI_CHAT,        // AI 对话
+    AI_CAMERA_WIFI_STREAM,    // wifi 图传
     AI_CAMERA_SETTING,        // 设置
 
     AI_CAMERA_MAX,
@@ -47,7 +48,14 @@ public:
 
 public:
     void Init(TwoWire *wire) { _wire=wire;}
-    void Init(int sda=-1, int scl=-1) { }
+    void Init(int sda=-1, int scl=-1) 
+    {
+        if (-1==sda && -1==scl)
+        {
+            Wire.begin();
+            _wire=&Wire;
+        }
+    }
     void begin(TwoWire *wire) { Init(wire); }
     void begin(int sda=-1, int scl=-1)
     {
@@ -73,10 +81,16 @@ public:
     uint8_t set_light_brightness(uint8_t brightness);
     uint8_t get_light_brightness(uint8_t &brightness);
 
-    uint8_t set_wifi_server_is_scan_qrcode(bool is_scan);
-    uint8_t get_wifi_server_ssid_passward(String &ssid, String &password);
-    uint8_t set_wifi_server_ssid_passward(const char *ssid, const char *password);
-    String get_wifi_server_ip(void);
+    uint8_t get_ai_chat_state(uint8_t &state);
+    uint8_t get_ai_chat_run_state(uint8_t &command, uint8_t &speed);
+    uint8_t get_ai_chat_custom_command(uint8_t &command);
+
+    uint8_t get_wifi_stream_joystick(int8_t &x, int8_t &y);
+    uint8_t get_wifi_stream_button(uint8_t &button);
+    uint8_t get_wifi_stream_keyboard(uint8_t &keyboard);
+    uint8_t get_wifi_stream_ssid_password(String &ssid, String &password);
+    uint8_t get_wifi_stream_ip(String &ip);
+
 
 protected:
     virtual uint8_t writeReg(uint8_t dev_addr, uint8_t reg, uint8_t *data, uint16_t len);

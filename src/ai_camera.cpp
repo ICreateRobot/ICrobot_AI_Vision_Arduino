@@ -22,7 +22,7 @@ typedef struct ai_element
     const ai_camera_sub_t *sub; // 子属性
 } ai_element_t;
 
-static const uint8_t register_addr[] = {0,15,30,45,60,75,90,105,120,135,150, 165, 180, 195};
+static const uint8_t register_addr[] = {0,15,30,45,60,75,90,105,120,135,150, 165, 165, 180};
 
 static const ai_element_t obj_sys = {0};
 static const ai_element_t obj_color = {0};
@@ -472,22 +472,66 @@ uint8_t AiCamera::get_light_brightness(uint8_t &brightness)
     return ret;
 }
 
-
-uint8_t AiCamera::set_wifi_server_is_scan_qrcode(bool is_scan)
+uint8_t AiCamera::get_ai_chat_state(uint8_t &state)
 {
     uint8_t ret=0;
-    uint8_t is_scan_qrcode_addr = get_register_addr(AI_CAMERA_WIFI_SERVER, 3);
-    uint8_t is_scan_value = is_scan ? 1 : 0;
-    ret += this->writeReg(this->DEV_ADDR, is_scan_qrcode_addr, &is_scan_value, 1);
+    uint8_t target_base_addr = get_register_addr(AI_CAMERA_AI_CHAT, 4);
+    ret += this->readReg(this->DEV_ADDR, target_base_addr, &state, 1);
     return ret;
 }
 
-uint8_t AiCamera::get_wifi_server_ssid_passward(String &ssid, String &password)
+uint8_t AiCamera::get_ai_chat_run_state(uint8_t &command, uint8_t &speed)
+{
+    uint8_t ret=0;
+    uint8_t data[2] = {0};
+    uint8_t target_base_addr = get_register_addr(AI_CAMERA_AI_CHAT, 5);
+    ret += this->readReg(this->DEV_ADDR, target_base_addr, data, 2);
+    command = data[0];
+    speed = data[1];
+    return ret;
+}
+
+uint8_t AiCamera::get_ai_chat_custom_command(uint8_t &command)
+{
+    uint8_t ret=0;
+    uint8_t target_base_addr = get_register_addr(AI_CAMERA_AI_CHAT, 6);
+    ret += this->readReg(this->DEV_ADDR, target_base_addr, &command, 1);
+    return ret;
+}
+
+uint8_t AiCamera::get_wifi_stream_joystick(int8_t &x, int8_t &y)
+{
+    uint8_t ret=0;
+    uint8_t data[2] = {0};
+    uint8_t target_base_addr = get_register_addr(AI_CAMERA_WIFI_STREAM, 7);
+    ret += this->readReg(this->DEV_ADDR, target_base_addr, data, 2);
+    x = (int8_t)data[0];
+    y = (int8_t)data[1];
+    return ret;
+}
+
+uint8_t AiCamera::get_wifi_stream_button(uint8_t &button)
+{
+    uint8_t ret=0;
+    uint8_t target_base_addr = get_register_addr(AI_CAMERA_WIFI_STREAM, 8);
+    ret += this->readReg(this->DEV_ADDR, target_base_addr, &button, 1);
+    return ret;
+}
+
+uint8_t AiCamera::get_wifi_stream_keyboard(uint8_t &keyboard)
+{
+    uint8_t ret=0;
+    uint8_t target_base_addr = get_register_addr(AI_CAMERA_WIFI_STREAM, 9);
+    ret += this->readReg(this->DEV_ADDR, target_base_addr, &keyboard, 1);
+    return ret;
+}
+
+uint8_t AiCamera::get_wifi_stream_ssid_password(String &ssid, String &password)
 {
     uint8_t ret=0;
     uint8_t ssid_len = 0;
     uint8_t password_len = 0;
-    uint8_t ssid_addr = get_register_addr(AI_CAMERA_WIFI_SERVER, 0);
+    uint8_t ssid_addr = get_register_addr(AI_CAMERA_WIFI_STREAM, 0);
     uint8_t password_addr = ssid_addr+1;
     
     ret+=this->readReg(this->DEV_ADDR, ssid_addr, &ssid_len, 1);
@@ -507,43 +551,11 @@ uint8_t AiCamera::get_wifi_server_ssid_passward(String &ssid, String &password)
     return ret;
 }
 
-
-uint8_t AiCamera::set_wifi_server_ssid_passward(const char *ssid, const char *password)
+uint8_t AiCamera::get_wifi_stream_ip(String &ip)
 {
-    uint8_t ret=0;
-    uint8_t ssid_addr = get_register_addr(AI_CAMERA_WIFI_SERVER, 0);
-    uint8_t password_addr = ssid_addr+1;
-
-    const uint8_t ssid_len = strlen(ssid);
-    const uint8_t password_len = strlen(password);
-
-    char *ssid_content = new char[ssid_len+1];
-    char *password_content = new char[password_len+1];
-
-    ssid_content[0] = ssid_len;
-    memcpy(ssid_content+1, ssid, ssid_len);
-    
-    password_content[0] = password_len;
-    memcpy(password_content+1, password, password_len);
-
-    ret += this->writeReg(this->DEV_ADDR, ssid_addr,     (uint8_t *)ssid_content,     ssid_len+1);
-    ret += this->writeReg(this->DEV_ADDR, password_addr, (uint8_t *)password_content, password_len+1);
-
-    delete[] ssid_content;
-    delete[] password_content;
-
-    this->set_wifi_server_is_scan_qrcode(0); // 关闭二维码扫描
-
-    return ret;
-}
-
-
-String AiCamera::get_wifi_server_ip(void)
-{
-    String ip;
     uint8_t ret=0;
     uint8_t ip_len = 0;
-    uint8_t ip_addr = get_register_addr(AI_CAMERA_WIFI_SERVER, 2);
+    uint8_t ip_addr = get_register_addr(AI_CAMERA_WIFI_STREAM, 2);
     
     ret+=this->readReg(this->DEV_ADDR, ip_addr, &ip_len, 1);
     char *ip_content = new char[ip_len+2];
@@ -551,52 +563,7 @@ String AiCamera::get_wifi_server_ip(void)
     ip_content[ip_len+1] = '\0';
     ip = String(ip_content+1);
     delete[] ip_content;
-    if (0!=ret)
-    {
-        return String();
-    }
-    return ip;
-}
-
-#if 0
-uint8_t AiCamera::set_user_image_detection_model_info(uint32_t model_size, const char *anchors, uint8_t identify_num)
-{
-    uint8_t ret = 0;
-    uint8_t target_base_addr = get_register_addr(AI_CAMERA_USER_IMAGE_DETECTION, 0);
-    uint8_t model_size_addr = target_base_addr+0;
-    uint8_t anchors_addr = target_base_addr+1;
-    uint8_t identify_num_addr = target_base_addr+2;
-
-    String model_size_str;
-    String _model_size_str = String(model_size);
-    model_size_str += _model_size_str.length();
-    model_size_str += _model_size_str;
-    ret += this->writeReg(this->DEV_ADDR, model_size_addr, (uint8_t *)model_size_str.c_str(), model_size_str.length());
-
-    String anchors_str;
-    String _anchors_str = String(anchors);
-    anchors_str += _anchors_str.length();
-    anchors_str += _anchors_str;
-    ret += this->writeReg(this->DEV_ADDR, anchors_addr, (uint8_t *)anchors_str.c_str(), anchors_str.length());
-
-    ret += this->writeReg(this->DEV_ADDR, identify_num_addr, (uint8_t *)&identify_num, 1);
-
     return ret;
 }
 
-uint8_t AiCamera::set_user_image_class_model_info(uint32_t model_size)
-{
-    uint8_t ret = 0;
-    uint8_t target_base_addr = get_register_addr(AI_CAMERA_UR_IMAGE_CLASS, 0);
-    uint8_t model_size_addr = target_base_addr+0;
 
-    String model_size_str;
-    // String _model_size_str = std::to_string(model_size);
-    // model_size_str.push_back(_model_size_str.length());
-    // model_size_str += _model_size_str;
-    model_size_str += String(model_size);
-    ret += this->writeReg(this->DEV_ADDR, model_size_addr, (uint8_t *)model_size_str.c_str(), model_size_str.length());
-    return ret;
-}
-
-#endif
