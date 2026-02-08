@@ -16,18 +16,18 @@ void setup()
 {
     Serial.begin(115200);                                   // 初始化串口
     ai_camrea_handle.Init();                                // 初始化
-    ai_camrea_handle.set_sys_mode(AI_CAMERA_PATCH);         // 设置模式为色块识别模式
+    ai_camrea_handle.set_sys_mode(AI_CAMERA_BLOB);         // 设置模式为色块识别模式
     delay(1000);                                            // 等待切换完成
     ai_camrea_handle.set_find_color(AI_CAMERA_COLOR_GREEN); // 设置识别颜色为绿色
 }
 
 void loop()
 {
-    uint8_t color_id = ai_camrea_handle.get_identify_id(AI_CAMERA_PATCH); // 获取设置的颜色id
-    if (ai_camrea_handle.get_identify_num(AI_CAMERA_PATCH))               // 如果识别到
+    uint8_t color_id = ai_camrea_handle.get_identify_id(AI_CAMERA_BLOB); // 获取设置的颜色id
+    if (ai_camrea_handle.get_identify_num(AI_CAMERA_BLOB))               // 如果识别到
     {
         int position[4] = {0};
-        ai_camrea_handle.get_identify_position(AI_CAMERA_PATCH, position); // 获取位置信息
+        ai_camrea_handle.get_identify_position(AI_CAMERA_BLOB, position); // 获取位置信息
         if (color_id == AI_CAMERA_COLOR_GREEN)                             // 如果识别到的是绿色
         {
             Serial.println("find green");

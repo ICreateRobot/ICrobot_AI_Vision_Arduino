@@ -274,7 +274,7 @@ void AiCamera::get_color_rgb(int &r, int &g, int &b)
 
 void AiCamera::set_find_color(uint8_t color_id)
 {
-    this->writeReg(this->DEV_ADDR, get_register_addr(AI_CAMERA_PATCH, 0), &color_id, 1);
+    this->writeReg(this->DEV_ADDR, get_register_addr(AI_CAMERA_BLOB, 0), &color_id, 1);
 }
 
 void AiCamera::face_study(void)
