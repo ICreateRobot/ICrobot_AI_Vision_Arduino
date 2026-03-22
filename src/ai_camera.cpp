@@ -437,16 +437,6 @@ void AiCamera::get_identify_position(AI_CAMERA_REGISTER_t features, int &x, int 
     h = position[3];
 }
 
-uint8_t AiCamera::get_identify_confidence(AI_CAMERA_REGISTER_t features, uint8_t id)
-{
-    uint8_t confidence_list[4] = {0};
-    if (features != AI_CAMERA_DEEP_LEARN || id > 3)
-        return 0;
-    uint8_t target_base_addr = get_register_addr(features, 3);
-    this->readReg(this->DEV_ADDR, target_base_addr, confidence_list, 4);
-    return confidence_list[id];
-}
-
 uint8_t AiCamera::set_light_status(uint8_t status)
 {
     uint8_t ret=0;

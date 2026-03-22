@@ -75,7 +75,6 @@ public:
     int16_t get_identify_rotation(AI_CAMERA_REGISTER_t features, uint8_t index=0);
     void get_identify_position(AI_CAMERA_REGISTER_t features, int position[4], uint8_t index=0);
     void get_identify_position(AI_CAMERA_REGISTER_t features, int &x, int &y, int &w, int &h, uint8_t index=0);
-    uint8_t get_identify_confidence(AI_CAMERA_REGISTER_t features, uint8_t id);
 
     uint8_t set_light_status(uint8_t status);
     uint8_t set_light_brightness(uint8_t brightness);
