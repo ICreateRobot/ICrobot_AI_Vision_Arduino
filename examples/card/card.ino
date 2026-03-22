@@ -22,7 +22,8 @@ AiCamera ai_camrea_handle;
 void setup()
 {
     Serial.begin(115200);                          // 初始化串口
-    ai_camrea_handle.Init();                       // 初始化
+    Wire.begin();          // 初始化 I2C
+    ai_camrea_handle.Init(&Wire); // 初始化
     ai_camrea_handle.set_sys_mode(AI_CAMERA_CARD); // 设置模式为卡片识别模式
     delay(1000);                                   // 等待切换完成
 }
